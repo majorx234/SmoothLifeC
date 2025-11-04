@@ -8,6 +8,7 @@ find_package(raylib)
 
 set(SMOOTH_LIFE_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/smooth_life.c
 )
 add_executable(smooth_life)
 target_sources(smooth_life
@@ -20,5 +21,6 @@ target_include_directories(smooth_life
 )
 target_link_libraries(smooth_life
  PRIVATE
-   ${raylib_LIBRARIES}
+  ${raylib_LIBRARIES}
+  m
 )
