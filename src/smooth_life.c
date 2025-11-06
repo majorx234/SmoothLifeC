@@ -1,6 +1,8 @@
+#include <stdio.h>
 #include <float.h>
 #include <math.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 double clamp2(double x, double min, double max)
 {
@@ -34,6 +36,13 @@ void logistic_interval(double *x, double *x_out, size_t length, double a,
   }
 }
 
+void logistic_interval_array(double *x, double *x_out, size_t length, double* a,
+                       double* b, double alpha) {
+  for (size_t i = 0; i< length; i++) {
+    x_out[i] = 1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - a[i]))) * (1.0 - (1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - b[i])))));
+  }
+}
+
 void linearized_interval(double *x, double *x_out, size_t length, double a,
                        double b, double alpha) {
   for (size_t i = 0; i< length; i++) {
@@ -41,8 +50,73 @@ void linearized_interval(double *x, double *x_out, size_t length, double a,
   }
 }
 
-void lerp (double *a, double *b, double *t, double *x_out, size_t length) {
+void lerp(double a, double b, double *t, double *x_out, size_t length) {
+  for (size_t i = 0; i < length; i++) {
+    x_out[i] = (1.0 - t[i]) * a + t[i] * b;
+  }
+}
+
+void lerp_array(double *a, double *b, double *t, double *x_out, size_t length) {
   for (size_t i = 0; i < length; i++) {
     x_out[i] = (1.0 - t[i]) * a[i] + t[i] * b[i];
   }
 }
+
+typedef struct BasicRules {
+  double b1;
+  double b2;
+  double d1;
+  double d2;
+  double N;
+  double M;
+} BasicRules;
+
+BasicRules* basic_rules_create(){
+  BasicRules* basic_rules = (BasicRules*)malloc(sizeof(BasicRules));
+  basic_rules->b1 = 0.278;
+  basic_rules->b2 = 0.365;
+  basic_rules->d1 = 0.267;
+  basic_rules->d2 = 0.445;
+  basic_rules->M = 0.028;
+  basic_rules->N = 0.147;
+
+  // TODO: read in cli arguments, change params
+  return basic_rules;
+}
+
+void basic_rules_clear(BasicRules* basic_rules) {
+  // TODO reset internal state
+}
+
+typedef struct AlivenessTemp {
+  double* aliveness;
+  double* threshold1;
+  double* threshold2;
+  double* new_aliveness;
+} AlivenessTemp;
+
+void s(BasicRules* basic_rules,
+       double* n,
+       size_t length_n,
+       double* m,
+       size_t length_m,
+       double* field,
+       size_t length_field,
+       double* x_out,
+       AlivenessTemp* aliveness_temp) {
+  logistic_threshold(m, aliveness_temp->aliveness, length_m, 0.5, basic_rules->M);
+  lerp(basic_rules->b1, basic_rules->d1, aliveness_temp->aliveness, aliveness_temp->threshold1, length_m);
+  lerp(basic_rules->b2, basic_rules->d2, aliveness_temp->aliveness, aliveness_temp->threshold2, length_m);
+  logistic_interval_array(n, aliveness_temp->new_aliveness, length_m, aliveness_temp->threshold1, aliveness_temp->threshold2, basic_rules->N);
+  for (int i = 0; i < length_m; i++) {
+    x_out[i] = clamp2(aliveness_temp->new_aliveness[i], 0.0, 1.0);
+  }
+}
+
+typedef struct SmootheLife {
+  size_t with;
+  size_t height;
+  double shape_h;
+  double shape_w;
+  BasicRules* basic_rules;
+} SmootheLife;
