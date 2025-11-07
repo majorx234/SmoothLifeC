@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <assert.h>
 
 double clamp2(double x, double min, double max)
 {
@@ -62,7 +63,49 @@ void lerp_array(double *a, double *b, double *t, double *x_out, size_t length) {
   }
 }
 
+typedef struct AlivenessTemp {
+  double* aliveness;
+  double* threshold1;
+  double* threshold2;
+  double* new_aliveness;
+} AlivenessTemp;
+
+typedef struct Class {
+  size_t size;
+  void * (* ctor) (void * self, va_list * app);
+  void * (* dtor) (void * self);
+  void (* s) (const void * self,
+              double* n,
+              size_t length_n,
+              double* m,
+              size_t length_m,
+              double* field,
+              size_t length_field,
+              double* x_out,
+              AlivenessTemp* aliveness_temp);
+} Class;
+
+void s (const void * self,
+        double* n,
+        size_t length_n,
+        double* m,
+        size_t length_m,
+        double* field,
+        size_t length_field,
+        double* x_out,
+        AlivenessTemp* aliveness_temp) {
+  const Class * const * cp = self;
+  assert(self && * cp && (* cp) -> s);
+  (* cp) -> s(self,
+              n, length_n,
+              m, length_m,
+              field, length_field,
+              x_out,
+              aliveness_temp);
+}
+
 typedef struct BasicRules {
+  const void* class;
   double b1;
   double b2;
   double d1;
@@ -88,14 +131,7 @@ void basic_rules_clear(BasicRules* basic_rules) {
   // TODO reset internal state
 }
 
-typedef struct AlivenessTemp {
-  double* aliveness;
-  double* threshold1;
-  double* threshold2;
-  double* new_aliveness;
-} AlivenessTemp;
-
-void s(BasicRules* basic_rules,
+void basic_rules_s(BasicRules* basic_rules,
        double* n,
        size_t length_n,
        double* m,
@@ -105,13 +141,30 @@ void s(BasicRules* basic_rules,
        double* x_out,
        AlivenessTemp* aliveness_temp) {
   logistic_threshold(m, aliveness_temp->aliveness, length_m, 0.5, basic_rules->M);
-  lerp(basic_rules->b1, basic_rules->d1, aliveness_temp->aliveness, aliveness_temp->threshold1, length_m);
-  lerp(basic_rules->b2, basic_rules->d2, aliveness_temp->aliveness, aliveness_temp->threshold2, length_m);
-  logistic_interval_array(n, aliveness_temp->new_aliveness, length_m, aliveness_temp->threshold1, aliveness_temp->threshold2, basic_rules->N);
+  lerp(basic_rules->b1,
+       basic_rules->d1,
+       aliveness_temp->aliveness,
+       aliveness_temp->threshold1,
+       length_m);
+  lerp(basic_rules->b2,
+       basic_rules->d2,
+       aliveness_temp->aliveness,
+       aliveness_temp->threshold2,
+       length_m);
+  logistic_interval_array(n,
+                          aliveness_temp->new_aliveness,
+                          length_m, aliveness_temp->threshold1,
+                          aliveness_temp->threshold2,
+                          basic_rules->N);
   for (int i = 0; i < length_m; i++) {
     x_out[i] = clamp2(aliveness_temp->new_aliveness[i], 0.0, 1.0);
   }
 }
+
+typedef struct ExtensiveRules {
+  const void* class;
+  // Todo inheritence
+} ExtensiveRules;
 
 typedef struct SmootheLife {
   size_t with;
