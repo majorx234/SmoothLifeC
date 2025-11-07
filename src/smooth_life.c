@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
@@ -83,6 +84,7 @@ typedef struct Class {
               size_t length_field,
               double* x_out,
               AlivenessTemp* aliveness_temp);
+  void (* clear)(const void * self);
 } Class;
 
 void s (const void * self,
@@ -102,10 +104,11 @@ void s (const void * self,
               field, length_field,
               x_out,
               aliveness_temp);
+  // TODO: basic implementaion
 }
 
 typedef struct BasicRules {
-  const void* class;
+  const Class* class;
   double b1;
   double b2;
   double d1;
@@ -114,32 +117,36 @@ typedef struct BasicRules {
   double M;
 } BasicRules;
 
-BasicRules* basic_rules_create(){
-  BasicRules* basic_rules = (BasicRules*)malloc(sizeof(BasicRules));
-  basic_rules->b1 = 0.278;
-  basic_rules->b2 = 0.365;
-  basic_rules->d1 = 0.267;
-  basic_rules->d2 = 0.445;
-  basic_rules->M = 0.028;
-  basic_rules->N = 0.147;
+void* basic_rules_new(void* _self, va_list * app){
+  // BasicRules* basic_rules = (BasicRules*)malloc(sizeof(BasicRules));
+  BasicRules* self = (BasicRules*)_self;
+  self->b1 = 0.278;
+  self->b2 = 0.365;
+  self->d1 = 0.267;
+  self->d2 = 0.445;
+  self->M = 0.028;
+  self->N = 0.147;
+  // TODO ? class
+  // self->class->size = ;
 
   // TODO: read in cli arguments, change params
-  return basic_rules;
+  return self;
 }
 
-void basic_rules_clear(BasicRules* basic_rules) {
-  // TODO reset internal state
+void basic_rules_clear(const void* _self) {
+  // TODO reset internal state (no stat in basic rules)
 }
 
-void basic_rules_s(BasicRules* basic_rules,
-       double* n,
-       size_t length_n,
-       double* m,
-       size_t length_m,
-       double* field,
-       size_t length_field,
-       double* x_out,
-       AlivenessTemp* aliveness_temp) {
+void basic_rules_s(const void* _self,
+                   double* n,
+                   size_t length_n,
+                   double* m,
+                   size_t length_m,
+                   double* field,
+                   size_t length_field,
+                   double* x_out,
+                   AlivenessTemp* aliveness_temp) {
+  BasicRules* basic_rules = (BasicRules*)_self;
   logistic_threshold(m, aliveness_temp->aliveness, length_m, 0.5, basic_rules->M);
   lerp(basic_rules->b1,
        basic_rules->d1,
@@ -161,10 +168,39 @@ void basic_rules_s(BasicRules* basic_rules,
   }
 }
 
+static const Class _point = {
+  sizeof(BasicRules), basic_rules_new, 0 , basic_rules_s, basic_rules_clear
+};
+
 typedef struct ExtensiveRules {
-  const void* class;
-  // Todo inheritence
+  const BasicRules _;
+  uint8_t sigmode;
+  uint8_t sigtype;
+  uint8_t mixtype;
+  uint8_t timestep_mode;
+  double dt;
+  double *esses[3];
+  size_t esses_count;
 } ExtensiveRules;
+
+ExtensiveRules* extensive_rules_new(void* _self, va_list * app) {
+  basic_rules_new(_self, app);
+  ExtensiveRules* self = (ExtensiveRules*)_self;
+  self->sigmode = 0;
+  self->sigtype = 0;
+  self->mixtype = 0;
+  self->timestep_mode = 0;
+  self->dt = 0.1;
+  self->esses[0] = NULL;
+  self->esses[1] = NULL;
+  self->esses[2] = NULL;
+  self->esses_count = 0;
+  return self;
+};
+
+//void extensive_rules_clear(const void* _self) {
+//  
+//}
 
 typedef struct SmootheLife {
   size_t with;
