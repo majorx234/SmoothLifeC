@@ -25,6 +25,12 @@ void hard_threshold(double* x, double* x_out, size_t length, double x0) {
   }
 }
 
+void hard_threshold_mul_invth(double* x, double* x_out, size_t length, double x0, double x0_inv) {
+  for (size_t i = 0; i< length; i++) {
+    x_out[i] = (x[i] > x0 ? 1.0 : 0.0) * 1 -(x[i] > x0_inv ? 1.0 : 0.0);
+  }
+}
+
 void linearized_threshold(double* x, double* x_out, size_t length, double x0, double alpha) {
   for (size_t i = 0; i < length; i++) {
     x_out[i] = clamp2((x[i] - x0) / alpha + 0.5, 0.0, 1.0);
@@ -63,6 +69,23 @@ void lerp_array(double *a, double *b, double *t, double *x_out, size_t length) {
     x_out[i] = (1.0 - t[i]) * a[i] + t[i] * b[i];
   }
 }
+
+void sigmoid_ab(double* x, double* x_out, size_t length, double a, double b, double N, int8_t sigtype) {
+  if (sigtype == 0) {
+    hard_threshold(x, x_out, length, a);
+    for(size_t i = 0;i<length;i++) {
+      hard_threshold_mul_invth(x, x_out, length, a, b);
+    }
+  } else if (sigtype == 1){
+    linearized_interval(x, x_out, length, a, b, N);
+  } else if (sigtype == 4) {
+    logistic_interval(x, x_out, length, a, b, N);
+  } else {
+    printf("sigtype not implemented");
+    exit(-2);
+  }
+}
+
 
 typedef struct AlivenessTemp {
   double* aliveness;
