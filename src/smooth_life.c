@@ -86,6 +86,20 @@ void sigmoid_ab(double* x, double* x_out, size_t length, double a, double b, dou
   }
 }
 
+void sigmoid_mix(double* x, double* y, double* m, double* x_out, size_t length, int8_t mixtype, double M) {
+  // used x_out as temp array to hold intermediate values
+  if (mixtype == 0) {
+    hard_threshold(m, x_out, length, 0.5);
+  } else if (mixtype == 1){
+    linearized_threshold(x, x_out, length, 0.5, M);
+  } else if (mixtype == 4) {
+    logistic_threshold(m, x_out, length, 0.5, M);
+  } else {
+    printf("mixtype not implemented");
+    exit(-3);
+  }
+  lerp_array(x, y, x_out, x_out, length);
+}
 
 typedef struct AlivenessTemp {
   double* aliveness;
