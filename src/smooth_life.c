@@ -198,9 +198,13 @@ ExtensiveRules* extensive_rules_new(void* _self, va_list * app) {
   return self;
 };
 
-//void extensive_rules_clear(const void* _self) {
-//  
-//}
+void extensive_rules_clear(const void* _self) {
+  ExtensiveRules* self = (ExtensiveRules*)_self;
+  for(size_t i = 0;i<3;i++){
+    self->esses[i] = NULL;
+    self->esses_count = 0;
+  }
+}
 
 typedef struct SmootheLife {
   size_t with;
