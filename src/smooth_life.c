@@ -91,10 +91,7 @@ void lerp_array(double *a, double *b, double *t, double *x_out, size_t length) {
 
 void sigmoid_ab(double* x, double* x_out, size_t length, double a, double b, double N, int8_t sigtype) {
   if (sigtype == 0) {
-    hard_threshold(x, x_out, length, a);
-    for(size_t i = 0;i<length;i++) {
-      hard_threshold_mul_invth(x, x_out, length, a, b);
-    }
+    hard_threshold_mul_invth(x, x_out, length, a, b);
   } else if (sigtype == 1){
     linearized_interval(x, x_out, length, a, b, N);
   } else if (sigtype == 4) {
