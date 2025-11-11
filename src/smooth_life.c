@@ -130,11 +130,31 @@ void sigmoid_mix(double* x, double* y, double* m, double* x_out, size_t length, 
   lerp_array(x, y, x_out, x_out, length);
 }
 
+void sigmoid_mix_point_xy(double x, double y, double* m, double* x_out, size_t length, int8_t mixtype, double M) {
+  // used x_out as temp array to hold intermediate values
+  if (mixtype == 0) {
+    hard_threshold(m, x_out, length, 0.5);
+  } else if (mixtype == 1){
+    linearized_threshold_point_x(x, x_out, length, 0.5, M);
+  } else if (mixtype == 4) {
+    logistic_threshold(m, x_out, length, 0.5, M);
+  } else {
+    printf("mixtype not implemented");
+    exit(-3);
+  }
+  lerp(x, y, x_out, x_out, length);
+}
+
 typedef struct AlivenessTemp {
   double* aliveness;
   double* threshold1;
   double* threshold2;
   double* new_aliveness;
+  double* b_thresh;
+  double* d_thresh;
+  double* transistion;
+  double* nextfield;
+  double* delta;
 } AlivenessTemp;
 
 typedef struct Class {
@@ -246,6 +266,7 @@ typedef struct ExtensiveRules {
   uint8_t timestep_mode;
   double dt;
   double *esses[3];
+  double *esses_free;
   size_t esses_count;
 } ExtensiveRules;
 
