@@ -281,15 +281,160 @@ ExtensiveRules* extensive_rules_new(void* _self, va_list * app) {
   self->esses[0] = NULL;
   self->esses[1] = NULL;
   self->esses[2] = NULL;
+  self->esses_free = NULL;
   self->esses_count = 0;
   return self;
 };
 
-void extensive_rules_clear(const void* _self) {
+void extensive_rules_clear(const void* _self, double** esses) {
   ExtensiveRules* self = (ExtensiveRules*)_self;
   for(size_t i = 0;i<3;i++){
-    self->esses[i] = NULL;
-    self->esses_count = 0;
+    self->esses[i] = esses[i]; // NULL;
+  }
+  self->esses_free = esses[3]; //NULL;
+  self->esses_count = 0;
+}
+
+void extensive_rules_s(const void* _self,
+                       double* n,
+                       size_t length_n,
+                       double* m,
+                       size_t length_m,
+                       double* field,
+                       size_t length_field,
+                       double* x_out,
+                       AlivenessTemp* aliveness_temp) {
+  ExtensiveRules* self = (ExtensiveRules*)_self;
+  if (self->sigmode == 1) {
+    sigmoid_ab(n,
+               aliveness_temp->b_thresh,
+               length_n,
+               self->_.b1,
+               self->_.b2,
+               self->_.N,
+               self->sigtype);
+    sigmoid_ab(n,
+               aliveness_temp->d_thresh,
+               length_n,
+               self->_.d1,
+               self->_.d2,
+               self->_.N,
+               self->sigtype);
+    lerp_array(aliveness_temp->b_thresh,
+               aliveness_temp->d_thresh,
+               m,
+               aliveness_temp->transistion,
+               length_m);
+  } else if (self->sigmode == 2) {
+    sigmoid_ab(n,
+               aliveness_temp->b_thresh,
+               length_n,
+               self->_.b1,
+               self->_.b2,
+               self->_.N,
+               self->sigtype);
+    sigmoid_ab(n,
+               aliveness_temp->d_thresh,
+               length_n,
+               self->_.d1,
+               self->_.d2,
+               self->_.N,
+               self->sigtype);
+    sigmoid_mix(aliveness_temp->b_thresh,
+                aliveness_temp->d_thresh,
+                m,
+                aliveness_temp->transistion,
+                length_m,
+                self->mixtype,
+                self->_.M);
+  } else if (self->sigmode == 3){
+    lerp(self->_.b1, self->_.d1, m, aliveness_temp->threshold1, length_m);
+    lerp(self->_.b2, self->_.d2, m, aliveness_temp->threshold2, length_m);
+    sigmoid_ab_array(n, aliveness_temp->transistion, length_n, aliveness_temp->threshold1, aliveness_temp->threshold2, self->_.N, self->sigtype );
+  } else if (self->sigmode == 4){
+    sigmoid_mix_point_xy(self->_.b1, self->_.d1, m, aliveness_temp->threshold1, length_m, self->mixtype, self->_.M);
+    sigmoid_mix_point_xy(self->_.b2, self->_.d2, m, aliveness_temp->threshold1, length_m, self->mixtype, self->_.M);
+    sigmoid_ab_array(n, aliveness_temp->transistion, length_n, aliveness_temp->threshold1, aliveness_temp->threshold2, self->_.N, self->sigtype );
+  } else {
+    printf("sigmod not implemented");
+    exit(-4);
+  }
+  // STEP 2: Integrate based on timestep_mode
+  if (self->timestep_mode == 0) {
+    for (size_t i = 0; i < length_field; i++) {
+      aliveness_temp->nextfield[i] = aliveness_temp->transistion[i];
+    }
+  } else if(self->timestep_mode == 1) {
+    for (size_t i = 0; i < length_field; i++) {
+      aliveness_temp->nextfield[i] = field[i] + self->dt * (2.0 * aliveness_temp->transistion[i] - 1);
+    }
+  } else if(self->timestep_mode == 2) {
+    for (size_t i = 0; i < length_field; i++) {
+      aliveness_temp->nextfield[i] = field[i] + self->dt * (aliveness_temp->transistion[i] - field[i]);
+    }
+  } else if(self->timestep_mode == 3) {
+    for (size_t i = 0; i < length_field; i++) {
+      aliveness_temp->nextfield[i] = m[i] + self->dt * (2.0 * aliveness_temp->transistion[i] - 1);
+    }
+  } else if(self->timestep_mode == 4) {
+    for (size_t i = 0; i < length_field; i++) {
+      aliveness_temp->nextfield[i] = m[i] + self->dt * (aliveness_temp->transistion[i] - m[i]);
+    }
+  } else if(self->timestep_mode == 5) {
+    for (size_t i = 0; i < length_field; i++) {
+      self->esses_free[i] = aliveness_temp->transistion[i] - m[i];
+    }
+    double* delta_tmp = aliveness_temp->delta;
+    if (self->esses_count == 0) {
+      double* tmp = self->esses[0];
+      delta_tmp = self->esses_free;
+      self->esses[0] = self->esses_free;
+      self->esses_free = tmp;
+      self->esses_count++;
+    } else if (self->esses_count == 1) {
+      for (size_t i = 0; i < length_field; i++) {
+        delta_tmp[i] = (3.0 * self->esses_free[i] - self->esses[0][i]) / 2.0;
+      }
+      double* tmp = self->esses[0];
+      self->esses[0] = self->esses_free;
+      self->esses_free = self->esses[1];
+      self->esses[1] = tmp;
+      self->esses_count++;
+    } else if (self->esses_count == 2) {
+      for (size_t i = 0; i < length_field; i++) {
+        delta_tmp[i] = (23.0 * self->esses_free[i]
+                        - 16.0 * self->esses[0][i]
+                        + 5.0 * self->esses[1][i]) / 12.0;
+      }
+      double* tmp = self->esses[0];
+      self->esses[0] = self->esses_free;
+      self->esses_free = self->esses[2];
+      self->esses[2] = self->esses[1];
+      self->esses[1] = tmp;
+      self->esses_count++;
+    } else { // esses_count ==3
+      for (size_t i = 0; i < length_field; i++) {
+        delta_tmp[i] = (55.0 * self->esses_free[i]
+                        - 59.0 * self->esses[0][i]
+                        + 37.0 * self->esses[1][i]
+                        - 9.0 * self->esses[2][i]) / 24.0;
+      }
+      double* tmp = self->esses[0];
+      self->esses[0] = self->esses_free;
+      self->esses_free = self->esses[2];
+      self->esses[2] = self->esses[1];
+      self->esses[1] = tmp;
+    }
+    for (size_t i = 0; i < length_field; i++) {
+      aliveness_temp->nextfield[i] = field[i] + self->dt *delta_tmp[i];
+    }
+  }
+  else {
+    printf("timestep_mode %d not implemented", s);
+    exit(-5);
+  }
+  for (int i = 0; i < length_m; i++) {
+    x_out[i] = clamp2(aliveness_temp->nextfield[i], 0.0, 1.0);
   }
 }
 
