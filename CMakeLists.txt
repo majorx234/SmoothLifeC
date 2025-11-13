@@ -39,3 +39,21 @@ target_link_libraries(smooth_life_app
  PRIVATE
   ${raylib_LIBRARIES}
 )
+
+# Tests
+set(SMOOTH_LIFE_TEST_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tests.c
+)
+add_executable(smooth_life_tests)
+target_sources(smooth_life_tests
+ PRIVATE
+  ${SMOOTH_LIFE_TEST_SOURCES}
+)
+target_include_directories(smooth_life_tests
+ PRIVATE
+  include
+)
+target_link_libraries(smooth_life_tests
+ PRIVATE
+  ${raylib_LIBRARIES}
+)
