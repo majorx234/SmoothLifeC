@@ -6,14 +6,13 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 find_package(raylib)
 
-set(SMOOTH_LIFE_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
+set(SMOOTH_LIFE_LIB_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/smooth_life.c
 )
-add_executable(smooth_life)
+add_library(smooth_life)
 target_sources(smooth_life
  PRIVATE
-  ${SMOOTH_LIFE_SOURCES}
+  ${SMOOTH_LIFE_LIB_SOURCES}
 )
 target_include_directories(smooth_life
  PRIVATE
@@ -21,6 +20,22 @@ target_include_directories(smooth_life
 )
 target_link_libraries(smooth_life
  PRIVATE
-  ${raylib_LIBRARIES}
   m
+)
+
+set(SMOOTH_LIFE_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
+)
+add_executable(smooth_life_app)
+target_sources(smooth_life_app
+ PRIVATE
+  ${SMOOTH_LIFE_SOURCES}
+)
+target_include_directories(smooth_life_app
+ PRIVATE
+  include
+)
+target_link_libraries(smooth_life_app
+ PRIVATE
+  ${raylib_LIBRARIES}
 )
