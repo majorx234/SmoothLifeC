@@ -1,5 +1,9 @@
 build/
 .ccls-cache/
+GPATH
+GRTAGS
+GTAGS
+buid
 
 ##### Emacs
 # -*- mode: gitignore; -*-
