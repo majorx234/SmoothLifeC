@@ -259,7 +259,7 @@ static const Class _point = {
 };
 
 typedef struct ExtensiveRules {
-  const BasicRules _;
+  BasicRules _;
   uint8_t sigmode;
   uint8_t sigtype;
   uint8_t mixtype;
@@ -436,6 +436,26 @@ void extensive_rules_s(const void* _self,
   for (int i = 0; i < length_m; i++) {
     x_out[i] = clamp2(aliveness_temp->nextfield[i], 0.0, 1.0);
   }
+}
+
+ExtensiveRules* smooth_timestep_rules_new(void* _self, va_list * app) {
+  extensive_rules_new(_self, app);
+  ExtensiveRules* self = (ExtensiveRules*)_self;
+  self->sigmode = 2;
+  self->sigtype = 1;
+  self->mixtype = 0;
+  self->timestep_mode = 2;
+  self->dt = 0.2;
+  self->esses[0] = NULL;
+  self->esses[1] = NULL;
+  self->esses[2] = NULL;
+  self->esses_free = NULL;
+  self->esses_count = 0;
+  self->_.b1 = 0.254;
+  self->_.b2 = 0.312;
+  self->_.d1 = 0.340;
+  self->_.d2 = 0.518;
+  return self;
 }
 
 typedef struct SmootheLife {
