@@ -458,6 +458,31 @@ ExtensiveRules* smooth_timestep_rules_new(void* _self, va_list * app) {
   return self;
 }
 
+void matrix_roll(double* matrix, size_t w, size_t h, size_t roll_offset, bool axis) {
+  if(bool) { // y-axis
+    
+  } else { // x-axis
+    
+  }
+}
+
+void antialiased_circle(unsigned int h,
+                        unsigned int w,
+                        double radius,
+                        double* x_out,
+                        size_t length)
+{
+  double logres = log2(h < w ? h : w);
+  for(size_t i = 0; i<h; i++) {
+    for(size_t j = 0; w<h; i++) {
+      double x = (j - (w/2.0)) * (j - (w/2.0));
+      double y = (i - (h/2.0)) * (i - (h/2.0));
+      double sqrt_r = sqrt(x+y);
+      x_out[i + w*j] = 1.0 / (1.0 + exp(logres * (sqrt_r - radius)));
+    }
+  }
+}
+
 typedef struct SmootheLife {
   size_t with;
   size_t height;
