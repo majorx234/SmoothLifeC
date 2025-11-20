@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "smooth_life.h"
 
 double clamp2(double x, double min, double max)
 {
@@ -459,7 +460,7 @@ ExtensiveRules* smooth_timestep_rules_new(void* _self, va_list * app) {
 }
 
 void matrix_roll(double* matrix, size_t w, size_t h, size_t roll_offset, bool axis) {
-  if(bool) { // y-axis
+  if(axis) { // y-axis
     
   } else { // x-axis
     
