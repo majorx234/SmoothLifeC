@@ -56,4 +56,5 @@ target_include_directories(smooth_life_tests
 target_link_libraries(smooth_life_tests
  PRIVATE
   ${raylib_LIBRARIES}
+  smooth_life
 )
