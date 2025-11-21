@@ -121,7 +121,7 @@ void sigmoid_mix(double* x, double* y, double* m, double* x_out, size_t length, 
   if (mixtype == 0) {
     hard_threshold(m, x_out, length, 0.5);
   } else if (mixtype == 1){
-    linearized_threshold(x, x_out, length, 0.5, M);
+    linearized_threshold(m, x_out, length, 0.5, M);
   } else if (mixtype == 4) {
     logistic_threshold(m, x_out, length, 0.5, M);
   } else {
@@ -136,7 +136,7 @@ void sigmoid_mix_point_xy(double x, double y, double* m, double* x_out, size_t l
   if (mixtype == 0) {
     hard_threshold(m, x_out, length, 0.5);
   } else if (mixtype == 1){
-    linearized_threshold_point_x(x, x_out, length, 0.5, M);
+    linearized_threshold(m, x_out, length, 0.5, M);
   } else if (mixtype == 4) {
     logistic_threshold(m, x_out, length, 0.5, M);
   } else {
