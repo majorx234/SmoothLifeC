@@ -44,12 +44,6 @@ void linearized_threshold(double* x, double* x_out, size_t length, double x0, do
   }
 }
 
-void linearized_threshold_point_x(double x, double* x_out, size_t length, double x0, double alpha) {
-  for (size_t i = 0; i < length; i++) {
-    x_out[i] = clamp2((x - x0) / alpha + 0.5, 0.0, 1.0);
-  }
-}
-
 void logistic_interval(double *x, double *x_out, size_t length, double a,
                        double b, double alpha) {
   for (size_t i = 0; i< length; i++) {
