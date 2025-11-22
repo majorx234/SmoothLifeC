@@ -101,6 +101,25 @@ bool test_linearized_threshold() {
   return true;
 }
 
+bool test_logistic_interval() {
+  size_t length = 6;
+  double input[6] = {1.2, 2.2, -1.2, 0.2, 0.9, 6.4};
+  double output[6] = {0};
+  double expected[6] = {0.59864711, 0.91636871, 0.01212843, 0.16798008, 0.45014927, 0.31001919};
+  double a = 1.0;
+  double b = 6.0;
+  double alpha = 2.0;
+  logistic_interval(input, output, length, a, b, alpha);
+  double epsilon = 0.0;
+  for (size_t i = 0; i < length; i++) {
+    double error = output[i] - expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+  printf("All logistic_interval tests passed.\n");
+  return true;
+}
+
 int main(int argc, char **argv) {
   test_clamp2();
   test_logistic_threshold();
@@ -108,6 +127,7 @@ int main(int argc, char **argv) {
   test_hard_threshold_mul_invth();
   test_hard_threshold_mul_invth_array();
   test_linearized_threshold();
+  test_logistic_interval();
   printf("All tests passed\n");
 }
 
