@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
 #include "smooth_life.h"
@@ -214,6 +215,54 @@ bool test_lerp_array() {
   return true;
 }
 
+bool test_sigmoid_ab() {
+  int8_t sigtypes[3] = {0, 1 , 4};
+  size_t length = 6;
+  double input[6] = {1.2, 2.9, 3.01, 3.8, 0.99, 4.001};
+  double output[6] = {0};
+  double expected[3][6] = {{1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
+                           {1.0, 1.0, 1.0, 1.0, 0.53571429, 0.5},
+                           {1.0, 1.0, 1.0, 1.0, 0.53565367, 0.5}};
+  double a = 0.989;
+  double b = 4.001;
+  double N = 0.028;
+  for (size_t j = 0; j< sizeof(sigtypes); j++) {
+    sigmoid_ab(input, output, length, a, b, N, sigtypes[j]);
+    double epsilon = 0.0;
+    for (size_t i = 0; i < length; i++) {
+      double error = output[i] - expected[j][i];
+      epsilon += error * error;
+    }
+    assert( epsilon < 0.00001);
+  }
+  printf("All sigmoid_ab tests passed.\n");
+  return true;
+}
+
+bool test_sigmoid_ab_array() {
+  int8_t sigtypes[3] = {0, 1 , 4};
+  size_t length = 6;
+  double input[6] = {1.2, 2.9, 3.01, 3.8, 0.99, 4.001};
+  double output[6] = {0};
+  double expected[3][6] = {{1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
+                           {1.0, 1.0, 0.85714286, 1.0, 0.85714286, 0.53571429},
+                           {1.0, 0.99999938, 0.80667863, 1.0, 0.80667863, 0.53565367}};
+  double a[6] = {1.0 , 2.0 , 3.0 , 3.5, 0.5, 4.0};
+  double b[6] = {2.0 , 3.0 , 4.0 , 4.0 , 1.0 , 4.3};
+  double N = 0.028;
+  for (size_t j = 0; j< sizeof(sigtypes); j++) {
+    sigmoid_ab_array(input, output, length, a, b, N, sigtypes[j]);
+    double epsilon = 0.0;
+    for (size_t i = 0; i < length; i++) {
+      double error = output[i] - expected[j][i];
+      epsilon += error * error;
+    }
+    assert( epsilon < 0.00001);
+  }
+  printf("All sigmoid_ab_aray tests passed.\n");
+  return true;
+}
+
 int main(int argc, char **argv) {
   test_clamp2();
   test_logistic_threshold();
@@ -227,6 +276,8 @@ int main(int argc, char **argv) {
   test_linearized_interval_array();
   test_lerp();
   test_lerp_array();
+  test_sigmoid_ab();
+  test_sigmoid_ab_array();
   printf("All tests passed\n");
 }
 
