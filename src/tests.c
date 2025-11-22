@@ -139,6 +139,44 @@ bool test_logistic_interval_array() {
   return true;
 }
 
+bool test_linearized_interval() {
+  size_t length = 6;
+  double input[6] = {1.2, 2.2, -1.2, 0.2, 0.9, 6.4};
+  double output[6] = {0};
+  double expected[6] = {0.6, 1.0, 0.0, 0.1, 0.45, 0.3};
+  double a = 1.0;
+  double b = 6.0;
+  double alpha = 2.0;
+  linearized_interval(input, output, length, a, b, alpha);
+  double epsilon = 0.0;
+  for (size_t i = 0; i < length; i++) {
+    double error = output[i] - expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+  printf("All linearized_interval tests passed.\n");
+  return true;
+}
+
+bool test_linearized_interval_array() {
+  size_t length = 6;
+  double input[6] = {1.2, 2.2, -1.2, 0.2, 0.9, 6.4};
+  double output[6] = {0};
+  double expected[6] = {0.6, 0.54, 0.0, 0.6, 0.5225, 0.56};
+  double a[6] = {1.0, 2.0, 3.0, 0.0, 0.0, 6.0};
+  double b[6] = {3.0, 3.0, 4.0, 4.0, 1.0, 7.0};
+  double alpha = 2.0;
+  linearized_interval_array(input, output, length, a, b, alpha);
+  double epsilon = 0.0;
+  for (size_t i = 0; i < length; i++) {
+    double error = output[i] - expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+  printf("All linearized_interval_array tests passed.\n");
+  return true;
+}
+
 int main(int argc, char **argv) {
   test_clamp2();
   test_logistic_threshold();
@@ -148,6 +186,8 @@ int main(int argc, char **argv) {
   test_linearized_threshold();
   test_logistic_interval();
   test_logistic_interval_array();
+  test_linearized_interval();
+  test_linearized_interval_array();
   printf("All tests passed\n");
 }
 
