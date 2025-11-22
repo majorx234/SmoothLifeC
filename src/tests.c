@@ -177,6 +177,43 @@ bool test_linearized_interval_array() {
   return true;
 }
 
+bool test_lerp() {
+  size_t length = 6;
+  double input[6] = {1.2, 2.2, -1.2, 0.2, 0.9, 6.4};
+  double output[6] = {0};
+  double expected[6] = { 7.0, 12.0, -5.0, 2.0, 5.5, 33.0};
+  double a = 1.0;
+  double b = 6.0;
+  lerp(a, b, input, output, length);
+  double epsilon = 0.0;
+  for (size_t i = 0; i < length; i++) {
+    double error = output[i] - expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+  printf("All lerp tests passed.\n");
+  return true;
+}
+
+bool test_lerp_array() {
+  size_t length = 6;
+  double input[6] = {1.2, 2.2, -1.2, 0.2, 0.9, 6.4};
+  double output[6] = {0};
+  double expected[6] = {3.4,  4.2,  1.8,  0.8,  0.9, 12.4};
+  double a[6] = {1.0, 2.0, 3.0, 0.0, 0.0, 6.0};
+  double b[6] = {3.0, 3.0, 4.0, 4.0, 1.0, 7.0};
+  double alpha = 2.0;
+  lerp_array(a, b,input, output, length);
+  double epsilon = 0.0;
+  for (size_t i = 0; i < length; i++) {
+    double error = output[i] - expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+  printf("All lerp_array tests passed.\n");
+  return true;
+}
+
 int main(int argc, char **argv) {
   test_clamp2();
   test_logistic_threshold();
@@ -188,6 +225,8 @@ int main(int argc, char **argv) {
   test_logistic_interval_array();
   test_linearized_interval();
   test_linearized_interval_array();
+  test_lerp();
+  test_lerp_array();
   printf("All tests passed\n");
 }
 
