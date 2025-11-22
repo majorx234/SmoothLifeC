@@ -47,14 +47,14 @@ void linearized_threshold(double* x, double* x_out, size_t length, double x0, do
 void logistic_interval(double *x, double *x_out, size_t length, double a,
                        double b, double alpha) {
   for (size_t i = 0; i< length; i++) {
-    x_out[i] = 1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - a))) * (1.0 - (1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - b)))));
+    x_out[i] = (1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - a)))) * (1.0 - (1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - b)))));
   }
 }
 
 void logistic_interval_array(double *x, double *x_out, size_t length, double* a,
                        double* b, double alpha) {
   for (size_t i = 0; i< length; i++) {
-    x_out[i] = 1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - a[i]))) * (1.0 - (1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - b[i])))));
+    x_out[i] = (1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - a[i])))) * (1.0 - (1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - b[i])))));
   }
 }
 
