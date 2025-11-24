@@ -263,6 +263,54 @@ bool test_sigmoid_ab_array() {
   return true;
 }
 
+bool test_sigmoid_mix() {
+  int8_t mixtypes[3] = {0, 1 , 4};
+  size_t length = 6;
+  double input_x[6] = {1.0, 2.0, 3.0, 3.0, 0.0, 4.0};
+  double input_y[6] = {2.0, 3.0, 4.0, 4.0, 2.0, 5.0};
+  double input_m[6] = {1.2, 2.9, 3.01, 3.8, 0.99, 4.001};
+  double output[6] = {0};
+  double expected[3][6] = {{2.0, 3.0, 4.0, 4.0, 2.0, 5.0},
+                           {2.0, 3.0, 4.0, 4.0, 2.0, 5.0},
+                           {1.99999999, 3.0, 4.0, 4.0, 1.99999676, 5.0 }};
+  double M = 0.147;
+  for (size_t j = 0; j< sizeof(mixtypes); j++) {
+    sigmoid_mix(input_x, input_y, input_m, output, length, mixtypes[j], M);
+    double epsilon = 0.0;
+    for (size_t i = 0; i < length; i++) {
+      double error = output[i] - expected[j][i];
+      epsilon += error * error;
+    }
+    assert( epsilon < 0.00001);
+  }
+  printf("All sigmoid_mix tests passed.\n");
+  return true;
+}
+
+bool test_sigmoid_mix_point_xy() {
+  int8_t mixtypes[3] = {0, 1 , 4};
+  size_t length = 6;
+  double input_x = 0.0;
+  double input_y = 5.0;
+  double input_m[6] = {1.2, 2.9, 3.01, 3.8, 0.99, 4.001};
+  double output[6] = {0};
+  double expected[3][6] = {{5.0, 5.0, 5.0, 5.0, 5.0, 5.0},
+                           {5.0, 5.0, 5.0, 5.0, 5.0, 5.0},
+                           {4.99999997, 5.0, 5.0, 5.0, 4.9999919, 5.0 }};
+  double M = 0.147;
+  for (size_t j = 0; j< sizeof(mixtypes); j++) {
+    sigmoid_mix_point_xy(input_x, input_y, input_m, output, length, mixtypes[j], M);
+    double epsilon = 0.0;
+    for (size_t i = 0; i < length; i++) {
+      double error = output[i] - expected[j][i];
+      epsilon += error * error;
+    }
+    assert( epsilon < 0.00001);
+  }
+  printf("All sigmoid_mix_point_xy tests passed.\n");
+  return true;
+}
+
 int main(int argc, char **argv) {
   test_clamp2();
   test_logistic_threshold();
@@ -278,6 +326,8 @@ int main(int argc, char **argv) {
   test_lerp_array();
   test_sigmoid_ab();
   test_sigmoid_ab_array();
+  test_sigmoid_mix();
+  test_sigmoid_mix_point_xy();
   printf("All tests passed\n");
 }
 
