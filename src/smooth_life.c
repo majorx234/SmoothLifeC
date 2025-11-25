@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -52,14 +53,14 @@ void logistic_interval(double *x, double *x_out, size_t length, double a,
 }
 
 void logistic_interval_array(double *x, double *x_out, size_t length, double* a,
-                       double* b, double alpha) {
+                             double* b, double alpha) {
   for (size_t i = 0; i< length; i++) {
     x_out[i] = (1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - a[i])))) * (1.0 - (1.0 / (1.0 + exp(-4.0 / alpha * (x[i] - b[i])))));
   }
 }
 
 void linearized_interval(double *x, double *x_out, size_t length, double a,
-                       double b, double alpha) {
+                         double b, double alpha) {
   for (size_t i = 0; i< length; i++) {
     x_out[i] = clamp2((x[i] - a) / alpha + 0.5, 0.0, 1.0) * (1.0 - (clamp2((x[i] - b) / alpha + 0.5, 0.0, 1.0)));
   }
@@ -68,7 +69,7 @@ void linearized_interval(double *x, double *x_out, size_t length, double a,
 void linearized_interval_array(double *x, double *x_out, size_t length, double* a,
                        double* b, double alpha) {
   for (size_t i = 0; i< length; i++) {
-    x_out[i] = clamp2((x[i] - a[i]) / alpha + 0.5, 0.0, 1.0) * (1.0 - (clamp2((x[i] - b[i]) / alpha + 0.5, 0.0, 1.0)));
+    x_out[i] = clamp2(((x[i] - a[i]) / alpha) + 0.5, 0.0, 1.0) * (1.0 - (clamp2(((x[i] - b[i]) / alpha) + 0.5, 0.0, 1.0)));
   }
 }
 
@@ -139,35 +140,7 @@ void sigmoid_mix_point_xy(double x, double y, double* m, double* x_out, size_t l
   }
   lerp(x, y, x_out, x_out, length);
 }
-
-typedef struct AlivenessTemp {
-  double* aliveness;
-  double* threshold1;
-  double* threshold2;
-  double* new_aliveness;
-  double* b_thresh;
-  double* d_thresh;
-  double* transistion;
-  double* nextfield;
-  double* delta;
-} AlivenessTemp;
-
-typedef struct Class {
-  size_t size;
-  void * (* ctor) (void * self, va_list * app);
-  void * (* dtor) (void * self);
-  void (* s) (const void * self,
-              double* n,
-              size_t length_n,
-              double* m,
-              size_t length_m,
-              double* field,
-              size_t length_field,
-              double* x_out,
-              AlivenessTemp* aliveness_temp);
-  void (* clear)(const void * self);
-} Class;
-
+/* Class helper */
 void s (const void * self,
         double* n,
         size_t length_n,
@@ -188,16 +161,7 @@ void s (const void * self,
   // TODO: basic implementaion
 }
 
-typedef struct BasicRules {
-  const Class* class;
-  double b1;
-  double b2;
-  double d1;
-  double d2;
-  double N;
-  double M;
-} BasicRules;
-
+/* BasicRules Class */
 void* basic_rules_new(void* _self, va_list * app){
   // BasicRules* basic_rules = (BasicRules*)malloc(sizeof(BasicRules));
   BasicRules* self = (BasicRules*)_self;
@@ -252,18 +216,7 @@ void basic_rules_s(const void* _self,
 static const Class _point = {
   sizeof(BasicRules), basic_rules_new, 0 , basic_rules_s, basic_rules_clear
 };
-
-typedef struct ExtensiveRules {
-  BasicRules _;
-  uint8_t sigmode;
-  uint8_t sigtype;
-  uint8_t mixtype;
-  uint8_t timestep_mode;
-  double dt;
-  double *esses[3];
-  double *esses_free;
-  size_t esses_count;
-} ExtensiveRules;
+/* ExtensiveRules */
 
 ExtensiveRules* extensive_rules_new(void* _self, va_list * app) {
   basic_rules_new(_self, app);
@@ -477,11 +430,3 @@ void antialiased_circle(unsigned int h,
     }
   }
 }
-
-typedef struct SmootheLife {
-  size_t with;
-  size_t height;
-  double shape_h;
-  double shape_w;
-  BasicRules* basic_rules;
-} SmootheLife;
