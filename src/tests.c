@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
 #include "smooth_life.h"
 
 bool test_clamp2() {
@@ -328,6 +329,9 @@ int main(int argc, char **argv) {
   test_sigmoid_ab_array();
   test_sigmoid_mix();
   test_sigmoid_mix_point_xy();
-  printf("All tests passed\n");
+  printf("All math function tests passed\n");
+  printf("== test Basic Rules Class\n");
+  BasicRules basic_rules_test;
+  basic_rules_new(&basic_rules_test, NULL);
 }
 
