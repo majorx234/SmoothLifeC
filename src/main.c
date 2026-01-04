@@ -35,12 +35,11 @@ int main(int argc, char **argv) {
 
   printf("starting smooth life\n");
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-  InitWindow(env.screen_width, env.screen_height, "sequencer_frontend");
+  InitWindow(env.screen_width, env.screen_height, "SmootgLifeC");
   while (!WindowShouldClose()) {
     BeginDrawing();
 
     ClearBackground(background_color);
-
 
     Rectangle boundary;
     boundary.x = 100;
