@@ -159,6 +159,25 @@ bool test_logistic_interval_array() {
   return true;
 }
 
+bool test_logistic_interval_array2() {
+  size_t length = 6;
+  double input[6] = {0.5 , 0.4 , 0.43, 0.45, 0.38, 0.41};
+  double output[6] = {0};
+  double expected[6] = {0.0003868, 0.0211232, 0.8949993, 0.3286523, 0.7958416, 0.9933070};
+  double a[6] = {0.267, 0.27687967, 0.267, 0.267, 0.274628, 0.26700002};
+  double b[6] = {0.445, 0.37314776, 0.445, 0.445, 0.38952354, 0.44499987};
+  double alpha = 0.028;
+  logistic_interval_array(input, output, length, a, b, alpha);
+  double epsilon = 0.0;
+  for (size_t i = 0; i < length; i++) {
+    double error = output[i] - expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+  printf("All logistic_interval_array tests passed.\n");
+  return true;
+}
+
 bool test_linearized_interval() {
   size_t length = 6;
   double input[6] = {1.2, 2.2, -1.2, 0.2, 0.9, 6.4};
@@ -421,6 +440,7 @@ int main(int argc, char **argv) {
   test_linearized_threshold();
   test_logistic_interval();
   test_logistic_interval_array();
+  test_logistic_interval_array2();
   test_linearized_interval();
   test_linearized_interval_array();
   test_lerp1();
