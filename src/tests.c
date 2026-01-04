@@ -312,6 +312,51 @@ bool test_sigmoid_mix_point_xy() {
   return true;
 }
 
+bool test_basic_rules() {
+  size_t length = 6;
+  double aliveness[6] = {0};
+  double threshold1[6] = {0};
+  double threshold2[6] = {0};
+  double new_aliveness[6] = {0};
+  double b_thresh[6] = {0};
+  double d_thresh[6] = {0};
+  double transistion[6] = {0};
+  double nextfield[6] = {0};
+  double delta[6] = {0};
+
+  AlivenessTemp aliveness_temp = {
+    .aliveness = aliveness,
+    .threshold1 = threshold1,
+    .threshold2 = threshold2,
+    .new_aliveness = new_aliveness,
+    .b_thresh = b_thresh,
+    .d_thresh = d_thresh,
+    .transistion = transistion,
+    .nextfield = nextfield,
+    .delta = delta
+  };
+  double input_m[6] = {1.2, 0.42, 3.01, 3.8, 0.47, 1.0};
+  double input_n[6] = {0.5 , 0.4 , 0.43, 0.45, 0.38, 0.41};
+  double output[6] = {0};
+  double field[6] = {0};
+  double expected[6] = {0.0003868, 0.0211232, 0.8949993, 0.3286523, 0.7958416, 0.9933070};
+
+  BasicRules basic_rules_test;
+  basic_rules_new(&basic_rules_test, NULL);
+  basic_rules_s(&basic_rules_test, input_n, 6, input_m, 6,
+                field, 6 , output, &aliveness_temp);
+
+  double epsilon = 0.0;
+  for (size_t i = 0; i < length; i++) {
+    double error = output[i] - expected[i];
+    epsilon += error * error;
+    printf("i:%d eps:%f\n", i, epsilon);
+  }
+  assert( epsilon < 0.00001);
+  printf("All sigmoid_mix_point_xy tests passed.\n");
+  return true;
+}
+
 int main(int argc, char **argv) {
   test_clamp2();
   test_logistic_threshold();
@@ -330,8 +375,7 @@ int main(int argc, char **argv) {
   test_sigmoid_mix();
   test_sigmoid_mix_point_xy();
   printf("All math function tests passed\n");
-  printf("== test Basic Rules Class\n");
-  BasicRules basic_rules_test;
-  basic_rules_new(&basic_rules_test, NULL);
+  printf("== test Basic Rules Class ==\n");
+  test_basic_rules();
 }
 
