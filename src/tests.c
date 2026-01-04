@@ -179,13 +179,49 @@ bool test_linearized_interval_array() {
   return true;
 }
 
-bool test_lerp() {
+bool test_lerp1() {
   size_t length = 6;
   double input[6] = {1.2, 2.2, -1.2, 0.2, 0.9, 6.4};
   double output[6] = {0};
   double expected[6] = { 7.0, 12.0, -5.0, 2.0, 5.5, 33.0};
   double a = 1.0;
   double b = 6.0;
+  lerp(a, b, input, output, length);
+  double epsilon = 0.0;
+  for (size_t i = 0; i < length; i++) {
+    double error = output[i] - expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+  printf("All lerp tests passed.\n");
+  return true;
+}
+
+bool test_lerp2() {
+  size_t length = 6;
+  double input[6] = {1.0, 0.10184681, 1.0, 1.0, 0.306544, 0.99999875};
+  double output[6] = {0};
+  double expected[6] = { 0.267, 0.27687967, 0.267, 0.267, 0.274628, 0.26700002};
+  double a = 0.278;
+  double b = 0.267;
+  lerp(a, b, input, output, length);
+  double epsilon = 0.0;
+  for (size_t i = 0; i < length; i++) {
+    double error = output[i] - expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+  printf("All lerp tests passed.\n");
+  return true;
+}
+
+bool test_lerp3() {
+  size_t length = 6;
+  double input[6] = {1.0, 0.10184681, 1.0, 1.0, 0.306544, 0.99999875};
+  double output[6] = {0};
+  double expected[6] = { 0.445, 0.37314776, 0.445, 0.445, 0.38952354, 0.44499987};
+  double a = 0.365;
+  double b = 0.445;
   lerp(a, b, input, output, length);
   double epsilon = 0.0;
   for (size_t i = 0; i < length; i++) {
@@ -368,7 +404,9 @@ int main(int argc, char **argv) {
   test_logistic_interval_array();
   test_linearized_interval();
   test_linearized_interval_array();
-  test_lerp();
+  test_lerp1();
+  test_lerp2();
+  test_lerp3();
   test_lerp_array();
   test_sigmoid_ab();
   test_sigmoid_ab_array();
