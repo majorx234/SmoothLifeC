@@ -32,6 +32,24 @@ bool test_logistic_threshold() {
   return true;
 }
 
+bool test_logistic_threshold2() {
+  size_t length = 6;
+  double input[6] = {1.2 , 0.42, 3.01, 3.8 , 0.47, 1.0};
+  double output[6] = {0};
+  double expected[6] = { 1.0, 0.10184681, 1.0, 1.0, 0.306544, 0.99999875 };
+  double x0 = 0.5;
+  double alpha = 0.147;
+  logistic_threshold(input, output, length, x0, alpha);
+  double epsilon = 0.0;
+  for (size_t i = 0; i < length; i++) {
+    double error = output[i] - expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+  printf("All logistic_threshold2 tests passed.\n");
+  return true;
+}
+
 bool test_hard_threshold() {
   size_t length = 6;
   double input[6] = {1.2, 2.2, -1.2, 0.2, 0.9, 6.4};
@@ -396,6 +414,7 @@ bool test_basic_rules() {
 int main(int argc, char **argv) {
   test_clamp2();
   test_logistic_threshold();
+  test_logistic_threshold2();
   test_hard_threshold();
   test_hard_threshold_mul_invth();
   test_hard_threshold_mul_invth_array();
