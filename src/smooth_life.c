@@ -430,19 +430,28 @@ void array_roll(double *arr, int length, int roll_offset, size_t stride) {
   roll_offset = roll_offset % length; // Normalize roll_offset to handle cases where roll_offset >= n
   if (roll_offset == 0) return; // No rotation needed
 
-  reverse_array(arr, 0, roll_offset-1,      stride);
-  reverse_array(arr, roll_offset, length-1, stride);
-  reverse_array(arr, roll_offset, length-1, stride);
+  reverse_array(arr, 0,           roll_offset-1,  stride);
+  reverse_array(arr, roll_offset, length-1,       stride);
+  reverse_array(arr, 0,           length-1,       stride);
+}
+
+void matrix_print(double* mat, size_t m, size_t n) {
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
+      printf("%f ", mat[i*m+j]);
+    }
+    printf("\n");
+  }
 }
 
 void matrix_roll(double* matrix, size_t w, size_t h, size_t roll_offset, bool axis) {
   if (axis == 0) {
     for (size_t i = 0; i < h; i++) {
-      roll_array(&arr[i], w, roll_offset, 3);
+      array_roll(&matrix[i], w, roll_offset, 3);
     }
   } else if (axis == 1) {
     for (size_t i = 0; i < h; i++) {
-      roll_array(&arr[i*w], w, roll_offset, 1);
+      array_roll(&matrix[i*w], w, roll_offset, 1);
     }
   } else {
     // TODO

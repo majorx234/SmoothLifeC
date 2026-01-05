@@ -102,6 +102,7 @@ void extensive_rules_s(const void* _self,
                        double* x_out,
                        AlivenessTemp* aliveness_temp);
 ExtensiveRules* smooth_timestep_rules_new(void* _self, va_list * app);
+void matrix_print(double* mat, size_t m, size_t n);
 void matrix_roll(double* matrix, size_t w, size_t h, size_t roll_offset, bool axis);
 void antialiased_circle(unsigned int h,
                         unsigned int w,
