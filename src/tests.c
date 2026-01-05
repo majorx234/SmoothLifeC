@@ -385,6 +385,37 @@ bool test_sigmoid_mix_point_xy() {
   return true;
 }
 
+bool test_matrix_roll() {
+  double mat1[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  double mat1_expected[] = {7, 8, 9, 1, 2, 3, 4, 5, 6};
+  int m = 3;
+  int n = 3;
+  int axis = 0;
+  int k = 1;
+  matrix_roll(mat1, m, n, k, axis);
+
+  double epsilon = 0.0;
+  for (size_t i = 0; i < m*n; i++) {
+    double error = mat1[i] - mat1_expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+
+  double mat2[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  double mat2_expected[] = {3, 1, 2, 6, 4, 5, 9, 7, 8};
+  axis = 1;
+  k = 1;
+  matrix_roll(mat2, m, n, k, axis);
+  epsilon = 0.0;
+  for (size_t i = 0; i < m*n; i++) {
+    double error = mat2[i] - mat2_expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+  printf("All matrix roll tests passed.\n");
+  return true;
+}
+
 bool test_basic_rules() {
   size_t length = 6;
   double aliveness[6] = {0};
@@ -451,6 +482,7 @@ int main(int argc, char **argv) {
   test_sigmoid_ab_array();
   test_sigmoid_mix();
   test_sigmoid_mix_point_xy();
+  test_matrix_roll();
   printf("All math function tests passed\n");
   printf("== test Basic Rules Class ==\n");
   test_basic_rules();
