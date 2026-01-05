@@ -169,8 +169,8 @@ void* basic_rules_new(void* _self, va_list * app){
   self->b2 = 0.365;
   self->d1 = 0.267;
   self->d2 = 0.445;
-  self->M = 0.028;
-  self->N = 0.147;
+  self->N = 0.028;
+  self->M = 0.147;
   // TODO ? class
   // self->class->size = ;
 
@@ -205,7 +205,8 @@ void basic_rules_s(const void* _self,
        length_m);
   logistic_interval_array(n,
                           aliveness_temp->new_aliveness,
-                          length_m, aliveness_temp->threshold1,
+                          length_m,
+                          aliveness_temp->threshold1,
                           aliveness_temp->threshold2,
                           basic_rules->N);
   for (int i = 0; i < length_m; i++) {
