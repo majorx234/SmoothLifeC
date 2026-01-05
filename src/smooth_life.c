@@ -407,11 +407,45 @@ ExtensiveRules* smooth_timestep_rules_new(void* _self, va_list * app) {
   return self;
 }
 
+
+void reverse_array(double* arr,size_t start, size_t end, size_t stride) {
+  int left = start, right = end;
+  // reverse first n -k elements
+  while (left < right) {
+    int temp = arr[left*stride];
+    arr[left*stride] = arr[right*stride];
+    arr[right*stride] = temp;
+    left++;
+    right--;
+  }
+
+}
+
+void array_roll(double *arr, int length, int roll_offset, size_t stride) {
+  // numpy convention
+  roll_offset = -roll_offset;
+  if (length <= 1) return; // No rotation needed for empty or single-element arrays
+  if (roll_offset < 0) roll_offset = length + roll_offset;
+
+  roll_offset = roll_offset % length; // Normalize roll_offset to handle cases where roll_offset >= n
+  if (roll_offset == 0) return; // No rotation needed
+
+  reverse_array(arr, 0, roll_offset-1,      stride);
+  reverse_array(arr, roll_offset, length-1, stride);
+  reverse_array(arr, roll_offset, length-1, stride);
+}
+
 void matrix_roll(double* matrix, size_t w, size_t h, size_t roll_offset, bool axis) {
-  if(axis) { // y-axis
-    
-  } else { // x-axis
-    
+  if (axis == 0) {
+    for (size_t i = 0; i < h; i++) {
+      roll_array(&arr[i], w, roll_offset, 3);
+    }
+  } else if (axis == 1) {
+    for (size_t i = 0; i < h; i++) {
+      roll_array(&arr[i*w], w, roll_offset, 1);
+    }
+  } else {
+    // TODO
   }
 }
 
@@ -430,4 +464,6 @@ void antialiased_circle(unsigned int h,
       x_out[i + w*j] = 1.0 / (1.0 + exp(logres * (sqrt_r - radius)));
     }
   }
+  // WIP
+  // TODO
 }
