@@ -515,12 +515,33 @@ bool test_basic_rules() {
   for (size_t i = 0; i < length; i++) {
     double error = output[i] - expected[i];
     epsilon += error * error;
-    printf("i:%d eps:%f\n", i, epsilon);
   }
   assert( epsilon < 0.00001);
   printf("All sigmoid_mix_point_xy tests passed.\n");
   return true;
 }
+
+void test_antialiased_circle(){
+  double output[36] = {0};
+  double expected[36] = {
+      0.99434716, 0.9298875,  0.5,        0.0701125,  0.5,        0.9298875,
+      0.9298875,  0.81968814, 0.35200745, 0.04722551, 0.35200745, 0.81968814,
+      0.5,        0.35200745, 0.10513261, 0.01551533, 0.10513261, 0.35200745,
+      0.0701125,  0.04722551, 0.01551533, 0.00302703, 0.01551533, 0.04722551,
+      0.5,        0.35200745, 0.10513261, 0.01551533, 0.10513261, 0.35200745,
+      0.9298875,  0.81968814, 0.35200745, 0.04722551, 0.35200745, 0.81968814};
+  unsigned int width  = 6;
+  unsigned int height = 6;
+  double radius = 2.0;
+  antialiased_circle(height, width, radius, output);
+  double epsilon = 0.0;
+  for (size_t i = 0; i < width*height; i++) {
+    double error = output[i] - expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+  printf("All antialiased cicrcle tests passed.\n");
+};
 
 int main(int argc, char **argv) {
   test_clamp2();
@@ -547,5 +568,7 @@ int main(int argc, char **argv) {
   printf("All math function tests passed\n");
   printf("== test Basic Rules Class ==\n");
   test_basic_rules();
+  printf("== test antialiased circle ==\n");
+  test_antialiased_circle();
 }
 
