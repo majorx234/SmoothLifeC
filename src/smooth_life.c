@@ -412,7 +412,7 @@ void reverse_array(double* arr,size_t start, size_t end, size_t stride) {
   int left = start, right = end;
   // reverse first n -k elements
   while (left < right) {
-    int temp = arr[left*stride];
+    double temp = arr[left*stride];
     arr[left*stride] = arr[right*stride];
     arr[right*stride] = temp;
     left++;
@@ -446,8 +446,8 @@ void matrix_print(double* mat, size_t m, size_t n) {
 
 void matrix_roll(double* matrix, size_t w, size_t h, size_t roll_offset, bool axis) {
   if (axis == 0) {
-    for (size_t i = 0; i < h; i++) {
-      array_roll(&matrix[i], w, roll_offset, 3);
+    for (size_t i = 0; i < w; i++) {
+      array_roll(&matrix[i], w, roll_offset, w);
     }
   } else if (axis == 1) {
     for (size_t i = 0; i < h; i++) {
