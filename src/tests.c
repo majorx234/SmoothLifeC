@@ -230,7 +230,7 @@ bool test_lerp1() {
     epsilon += error * error;
   }
   assert( epsilon < 0.00001);
-  printf("All lerp tests passed.\n");
+  printf("All lerp1 tests passed.\n");
   return true;
 }
 
@@ -248,7 +248,7 @@ bool test_lerp2() {
     epsilon += error * error;
   }
   assert( epsilon < 0.00001);
-  printf("All lerp tests passed.\n");
+  printf("All lerp2 tests passed.\n");
   return true;
 }
 
@@ -266,7 +266,7 @@ bool test_lerp3() {
     epsilon += error * error;
   }
   assert( epsilon < 0.00001);
-  printf("All lerp tests passed.\n");
+  printf("All lerp3 tests passed.\n");
   return true;
 }
 
@@ -412,6 +412,67 @@ bool test_matrix_roll() {
     epsilon += error * error;
   }
   assert( epsilon < 0.00001);
+
+  // 6*6 matrix
+  double mat3[] = {
+      1,  2,  3,  4,  5,  6,
+      7,  8,  9, 10, 11, 12,
+     13, 14, 15, 16, 17, 18,
+     19, 20, 21, 22, 23, 24,
+     25, 26, 27, 28, 29, 30,
+     31, 32, 33, 34, 35, 36};
+
+  double mat3_expected[] = {
+     13, 14, 15, 16, 17, 18,
+     19, 20, 21, 22, 23, 24,
+     25, 26, 27, 28, 29, 30,
+     31, 32, 33, 34, 35, 36,
+      1,  2,  3,  4,  5,  6,
+      7,  8,  9, 10, 11, 12};
+
+  m = 6;
+  n = 6;
+  axis = 0;
+  k = -2;
+
+  matrix_roll(mat3, m, n, k, axis);
+  epsilon = 0.0;
+  for (size_t i = 0; i < m*n; i++) {
+    double error = mat3[i] - mat3_expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+
+  // 6*6 matrix
+  double mat4[] = {
+     1.1, 2.2, 3.3, 4.4, 5.5, 6.6,
+     7.7, 8.8, 9.9,  10,  11,  12,
+     13,   14,  15,  16,  17,  18,
+     19,   20,  21,  22,  23,  24,
+     25,   26,  27,  28,  29,  30,
+     31,   32,  33,  34,  35,  36};
+
+  double mat4_expected[] = {
+     6.6, 1.1, 2.2, 3.3, 4.4, 5.5,
+      12, 7.7, 8.8, 9.9,  10,  11,
+      18,  13,  14,  15,  16,  17,
+      24,  19,  20,  21,  22,  23,
+      30,  25,  26,  27,  28,  29,
+      36,  31,  32,  33,  34,  35,};
+
+  m = 6;
+  n = 6;
+  axis = 1;
+  k = 1;
+
+  matrix_roll(mat4, m, n, k, axis);
+  epsilon = 0.0;
+  for (size_t i = 0; i < m*n; i++) {
+    double error = mat3[i] - mat3_expected[i];
+    epsilon += error * error;
+  }
+  assert( epsilon < 0.00001);
+
   printf("All matrix roll tests passed.\n");
   return true;
 }
