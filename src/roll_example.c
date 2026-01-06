@@ -40,8 +40,8 @@ void roll_array(int *arr, int length, int k, size_t stride) {
 
 void roll_mat(int* arr, int m, int n, int k, int axis) {
   if (axis == 0) {
-    for (size_t i = 0; i < n; i++) {
-      roll_array(&arr[i], m, k, 3);
+    for (size_t i = 0; i < m; i++) {
+      roll_array(&arr[i], m, k, m);
     }
   } else if (axis == 1) {
     for (size_t i = 0; i < n; i++) {
