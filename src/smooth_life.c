@@ -473,6 +473,6 @@ void antialiased_circle(unsigned int h,
       x_out[i + w*j] = 1.0 / (1.0 + exp(logres * (sqrt_r - radius)));
     }
   }
-  // WIP
-  // TODO
+  matrix_roll(x_out, w, h, (h>>1), 0);
+  matrix_roll(x_out, w, h, (w>>1), 1);
 }
