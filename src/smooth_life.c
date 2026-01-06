@@ -461,16 +461,16 @@ void matrix_roll(double* matrix, size_t w, size_t h, size_t roll_offset, bool ax
 void antialiased_circle(unsigned int h,
                         unsigned int w,
                         double radius,
-                        double* x_out,
-                        size_t length)
+                        double* x_out)
 {
-  double logres = log2(h < w ? h : w);
+  double logres = log2f(h < w ? h : w);
   for(size_t i = 0; i<h; i++) {
-    for(size_t j = 0; w<h; i++) {
-      double x = (j - (w/2.0)) * (j - (w/2.0));
-      double y = (i - (h/2.0)) * (i - (h/2.0));
-      double sqrt_r = sqrt(x+y);
-      x_out[i + w*j] = 1.0 / (1.0 + exp(logres * (sqrt_r - radius)));
+    for(size_t j = 0; j<w; j++) {
+      double x = j - (w/2.0);
+      double y = i - (h/2.0);
+      double sqrt_r = sqrt(x*x+y*y);
+      double value = 1.0 / (1.0 +  expf(logres * (sqrt_r - radius)));
+      x_out[w*i + j] = value;
     }
   }
   matrix_roll(x_out, w, h, (h>>1), 0);

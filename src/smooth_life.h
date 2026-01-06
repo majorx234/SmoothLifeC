@@ -107,8 +107,7 @@ void matrix_roll(double* matrix, size_t w, size_t h, size_t roll_offset, bool ax
 void antialiased_circle(unsigned int h,
                         unsigned int w,
                         double radius,
-                        double* x_out,
-                        size_t length);
+                        double* x_out);
 typedef struct SmootheLife {
   size_t with;
   size_t height;
