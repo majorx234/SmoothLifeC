@@ -476,3 +476,33 @@ void antialiased_circle(unsigned int h,
   matrix_roll(x_out, w, h, (h>>1), 0);
   matrix_roll(x_out, w, h, (w>>1), 1);
 }
+
+void init_multipliers(Multipliers *self, MultipliersTemp *tmp, int width,
+                      int height, double inner_radius, double outer_radius) {
+  self->inner_radius = inner_radius;
+  self->inner_radius = outer_radius;
+  antialiased_circle(height, width, inner_radius, tmp->inner);
+  antialiased_circle(height, width, outer_radius, tmp->outer);
+
+  // Build double spatial kernels
+  double sum_inner = 0.0;
+  double sum_annulus = 0.0;
+  for(size_t i = 0; i < height; i++) {
+    for (size_t j; j < width; j++) {
+      tmp->annulus[i * width + j] =
+          tmp->outer[i * width + j] - tmp->inner[i * width + j];
+      sum_annulus += tmp->annulus[i * width + j];
+      sum_inner += tmp->inner[i * width + j];
+    }
+  }
+
+  // Normalize each kernel so their sum is 1. This makes them proper averaging filters.
+  for(size_t i = 0; i < height; i++) {
+    for (size_t j; j < width; j++) {
+      tmp->annulus[i * width + j] /= sum_annulus;
+      tmp->inner[i * width + j] /= sum_inner;
+    }
+  }
+  // Compute real-to-complex FFTs. Inputs are float32; outputs are complex64.
+  // TODO: use fftw3
+}

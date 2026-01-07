@@ -115,3 +115,19 @@ typedef struct SmootheLife {
   double shape_w;
   BasicRules* basic_rules;
 } SmootheLife;
+
+typedef struct Multipliers{
+  double inner_radius;
+  double outer_radius;
+  double _M_freq;
+  double _N_freq;
+} Multipliers;
+
+typedef struct MultipliersTemp {
+  double* inner;
+  double* outer;
+  double* annulus;
+} MultipliersTemp;
+
+void init_multipliers(Multipliers *self, MultipliersTemp *tmp, int width,
+                      int height, double inner_radius, double outer_radius);
