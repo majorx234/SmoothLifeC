@@ -1,5 +1,7 @@
 build/
 .ccls-cache/
+.cache/
+quad_viz.blend
 GPATH
 GRTAGS
 GTAGS
@@ -15,3 +17,6 @@ buid
 auto-save-list
 tramp
 .\#*
+
+##### Kate
+*.kate-swp
