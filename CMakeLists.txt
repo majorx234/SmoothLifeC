@@ -40,6 +40,36 @@ target_link_libraries(smooth_life_app
   ${raylib_LIBRARIES}
 )
 
+set(ROLL_EXAMPLE_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/roll_example.c
+)
+add_executable(roll_example)
+target_sources(roll_example
+ PRIVATE
+  ${ROLL_EXAMPLE_SOURCES}
+)
+target_include_directories(roll_example
+ PRIVATE
+  include
+)
+
+set(FFTW3_EXAMPLE_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/fftw3_example.c
+)
+add_executable(fftw3_example)
+target_sources(fftw3_example
+ PRIVATE
+  ${FFTW3_EXAMPLE_SOURCES}
+)
+target_include_directories(fftw3_example
+ PRIVATE
+  include
+)
+target_link_libraries(fftw3_example
+  PRIVATE
+  fftw3
+)
+
 # Tests
 set(SMOOTH_LIFE_TEST_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tests.c
