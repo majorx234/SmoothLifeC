@@ -32,7 +32,7 @@ int main() {
 
   DataTmp tmp = {
     .input = (double *)fftw_malloc(sizeof(double) * width * height),
-    .output = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * width * height),
+    .output = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * (width/2 + 1) * height),
     .plan = fftw_plan_dft_r2c_2d(width, height, tmp.input, tmp.output, FFTW_ESTIMATE)
   };
 
@@ -45,7 +45,7 @@ int main() {
 
   fftw_execute(tmp.plan);
 
-  imatrix_print(tmp.output, width, height);
+  imatrix_print(tmp.output, (width/2 + 1), height);
 
   fftw_destroy_plan(tmp.plan);
   fftw_free(tmp.input);
