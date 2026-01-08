@@ -5,6 +5,8 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 find_package(raylib)
+find_package(PkgConfig)
+pkg_check_modules(FFTW3 REQUIRED fftw3)
 
 set(SMOOTH_LIFE_LIB_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/smooth_life.c
@@ -17,9 +19,11 @@ target_sources(smooth_life
 target_include_directories(smooth_life
  PRIVATE
   include
+  ${FFTW3_INCLUDE_DIRS}
 )
 target_link_libraries(smooth_life
  PRIVATE
+  ${FFTW3_LIBRARIES}
   m
 )
 
@@ -64,10 +68,11 @@ target_sources(fftw3_example
 target_include_directories(fftw3_example
  PRIVATE
   include
+  ${FFTW3_INCLUDE_DIRS}
 )
 target_link_libraries(fftw3_example
   PRIVATE
-  fftw3
+   ${FFTW3_LIBRARIES}
 )
 
 # Tests
