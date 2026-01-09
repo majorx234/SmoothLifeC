@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stddef.h>
+#include <fftw3.h>
 
 double clamp2(double x, double min, double max);
 void logistic_threshold(double* x, double* x_out, size_t length, double x0, double alpha);
@@ -119,14 +120,18 @@ typedef struct SmootheLife {
 typedef struct Multipliers{
   double inner_radius;
   double outer_radius;
-  double _M_freq;
-  double _N_freq;
+  fftw_complex* _M_freq;
+  fftw_complex* _N_freq;
+  size_t _M_freq_width;
+  size_t _M_freq_height;
+  size_t _N_freq_width;
+  size_t _N_freq_height;
 } Multipliers;
 
 typedef struct MultipliersTemp {
   double* inner;
-  double* outer;
   double* annulus;
+  double* outer;
 } MultipliersTemp;
 
 void init_multipliers(Multipliers *self, MultipliersTemp *tmp, int width,

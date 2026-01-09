@@ -1,3 +1,4 @@
+#include <fftw3.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <float.h>
@@ -503,6 +504,21 @@ void init_multipliers(Multipliers *self, MultipliersTemp *tmp, int width,
       tmp->inner[i * width + j] /= sum_inner;
     }
   }
+  fftw_plan plan_inner_M_freq = fftw_plan_dft_r2c_2d(width, height, tmp->inner, self->_M_freq, FFTW_ESTIMATE);
+  fftw_plan plan_annulus_N_freq = fftw_plan_dft_r2c_2d(width, height, tmp->annulus, self->_N_freq, FFTW_ESTIMATE);
   // Compute real-to-complex FFTs. Inputs are float32; outputs are complex64.
-  // TODO: use fftw3
+  fftw_execute(plan_inner_M_freq);
+  fftw_execute(plan_annulus_N_freq);
+
+  // set shapes
+  self->_M_freq_width = width / 2 + 1;
+  self->_M_freq_height = height;
+  self->_N_freq_width = width / 2 + 1;
+  self->_N_freq_height = height;
+
+  fftw_destroy_plan(plan_inner_M_freq);
+  fftw_destroy_plan(plan_annulus_N_freq);
+  fftw_free(tmp->inner);
+  fftw_free(tmp->annulus);
 }
+
