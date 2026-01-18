@@ -144,5 +144,18 @@ typedef struct SmootheLife {
   double* field;
 } SmootheLife;
 
-void init_smooth_life(SmootheLife* self, int width, int height);
+typedef struct SmootheLifeTemp {
+  fftw_complex* field_;
+  fftw_complex* M_buffer_;
+  fftw_complex* N_buffer_;
+  fftw_plan field_plan;
+  fftw_plan m_buffer_plan;
+  fftw_plan n_buffer_plan;
+  double* M_buffer;
+  double* N_buffer;
+  AlivenessTemp* aliveness_tmp;
+} SmootheLifeTemp;
+
+void init_smooth_life(SmootheLife* self, SmootheLifeTemp* tmp, int width, int height);
 void smoother_life_clear(SmootheLife* self);
+void smoother_life_step(SmootheLife* self, SmootheLifeTemp* tmp);

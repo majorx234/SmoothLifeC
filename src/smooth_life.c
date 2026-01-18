@@ -541,7 +541,7 @@ void init_multipliers(Multipliers *self, MultipliersTemp *tmp, int width,
   fftw_free(tmp->annulus);
 }
 
-void init_smooth_life(SmootheLife* self, int width, int height) {
+void init_smooth_life(SmootheLife* self, SmootheLifeTemp* tmp, int width, int height) {
   self->width = width;
   self->height = height;
   self->basic_rules = malloc(sizeof(BasicRules));
@@ -550,18 +550,61 @@ void init_smooth_life(SmootheLife* self, int width, int height) {
   MultipliersTemp multipliers_temp = {0};
 
   // just tempory, need to be deleted at the end
-  multipliers_temp.annulus = malloc(width*height*sizeof(double));
-  multipliers_temp.inner = malloc(width*height*sizeof(double));
-  multipliers_temp.outer = malloc(width*height*sizeof(double));
+  multipliers_temp.annulus = fftw_malloc(width*height*sizeof(double));
+  multipliers_temp.inner = fftw_malloc(width*height*sizeof(double));
+  multipliers_temp.outer = fftw_malloc(width*height*sizeof(double));
+  memset(multipliers_temp.annulus, 0, self->width*self->height*sizeof(double));
+  memset(multipliers_temp.inner, 0, self->width*self->height*sizeof(double));
+  memset(multipliers_temp.outer, 0, self->width*self->height*sizeof(double));
   double INNER_RADIUS = 7.0;
   double OUTER_RADIUS = INNER_RADIUS * 3.0;
 
   init_multipliers(self->multipliers, &multipliers_temp, width, height, INNER_RADIUS, OUTER_RADIUS);
-  self->field = malloc(width*height*sizeof(double));
+
+  self->field = (double *)fftw_malloc(sizeof(double) * width * height);
+  tmp->field_ = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * (width/2 + 1) * height);
+  tmp->M_buffer_ = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * (width/2 + 1) * height);
+  tmp->N_buffer_ = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * (width/2 + 1) * height);
+  tmp->M_buffer = (double *)fftw_malloc(sizeof(double) * width * height);
+  tmp->N_buffer = (double *)fftw_malloc(sizeof(double) * width * height);
+  // create fft plans:
+  tmp->field_plan = fftw_plan_dft_r2c_2d(width, height, self->field, tmp->field_, FFTW_ESTIMATE);
+  smoother_life_clear(self);
+  tmp->m_buffer_plan = fftw_plan_dft_c2r_2d(width, height, tmp->field_, tmp->M_buffer, FFTW_ESTIMATE);
+  tmp->n_buffer_plan = fftw_plan_dft_c2r_2d(width, height, tmp->field_, tmp->N_buffer, FFTW_ESTIMATE);
+
+  // create helper structure for rules step
+  tmp->aliveness_tmp = malloc(sizeof(AlivenessTemp));
+  tmp->aliveness_tmp->aliveness = malloc(width*height*sizeof(double));
+  tmp->aliveness_tmp->threshold1 = malloc(width*height*sizeof(double));
+  tmp->aliveness_tmp->threshold2 = malloc(width*height*sizeof(double));
+  tmp->aliveness_tmp->new_aliveness = malloc(width*height*sizeof(double));
+  tmp->aliveness_tmp->b_thresh = malloc(width*height*sizeof(double));
+  tmp->aliveness_tmp->d_thresh = malloc(width*height*sizeof(double));
+  tmp->aliveness_tmp->transistion = malloc(width*height*sizeof(double));
+  tmp->aliveness_tmp->nextfield = malloc(width*height*sizeof(double));
+  tmp->aliveness_tmp->delta = malloc(width*height*sizeof(double));
   smoother_life_clear(self);
 }
 
 void smoother_life_clear(SmootheLife* self) {
   memset(self->field, 0, self->width*self->height*sizeof(double));
   basic_rules_clear(self->basic_rules);
+}
+
+void smoother_life_step(SmootheLife* self, SmootheLifeTemp* tmp){
+    fftw_execute(tmp->field_plan);
+    matrix_point_mul_complex(tmp->field_, self->multipliers->_M_freq, tmp->M_buffer_, (self->width/2 + 1),  self->height);
+    matrix_point_mul_complex(tmp->field_, self->multipliers->_N_freq, tmp->N_buffer_, (self->width/2 + 1), self->height);
+    fftw_execute(tmp->m_buffer_plan);
+    fftw_execute(tmp->n_buffer_plan);
+    size_t n_buffer_length = self->width * self->height;
+    size_t m_buffer_length = self->width * self->height;
+    size_t field_length = self->width * self->height;
+    basic_rules_s(self->basic_rules,
+                  tmp->N_buffer, n_buffer_length,
+                  tmp->N_buffer, m_buffer_length,
+                  self->field, field_length,
+                  self->field,
+                  tmp->aliveness_tmp);
 }
