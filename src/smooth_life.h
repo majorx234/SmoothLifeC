@@ -1,6 +1,7 @@
+#include <fftw3.h>
+#include <math.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <fftw3.h>
 
 double clamp2(double x, double min, double max);
 void logistic_threshold(double* x, double* x_out, size_t length, double x0, double alpha);
@@ -105,6 +106,8 @@ void extensive_rules_s(const void* _self,
 ExtensiveRules* smooth_timestep_rules_new(void* _self, va_list * app);
 void matrix_print(double* mat, size_t m, size_t n);
 void matrix_roll(double* matrix, size_t w, size_t h, size_t roll_offset, bool axis);
+void matrix_point_mul(double* matrix_a, double* matrix_b, double* matrix_out, size_t w, size_t h);
+void matrix_point_mul_complex(fftw_complex* matrix_a, fftw_complex* matrix_b, fftw_complex* matrix_out, size_t w, size_t h);
 void antialiased_circle(unsigned int h,
                         unsigned int w,
                         double radius,

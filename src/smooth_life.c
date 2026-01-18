@@ -460,6 +460,23 @@ void matrix_roll(double* matrix, size_t w, size_t h, size_t roll_offset, bool ax
   }
 }
 
+void matrix_point_mul(double* matrix_a, double* matrix_b, double* matrix_out, size_t w, size_t h) {
+  for (size_t i = 0; i<w*h;i++){
+    matrix_out[i] = matrix_a[i] * matrix_b[i];
+  }
+}
+
+/*
+  real part = (a * c - b * d)
+  imag part = (a * d + b * c)
+*/
+void matrix_point_mul_complex(fftw_complex* matrix_a, fftw_complex* matrix_b, fftw_complex* matrix_out, size_t w, size_t h) {
+  for (size_t i = 0; i<w*h;i++){
+    matrix_out[i][0] = matrix_a[i][0] * matrix_b[i][0] - matrix_a[i][1] * matrix_b[i][1];
+    matrix_out[i][1] = matrix_a[i][0] * matrix_b[i][1] + matrix_a[i][1] * matrix_b[i][0];
+  }
+}
+
 void antialiased_circle(unsigned int h,
                         unsigned int w,
                         double radius,
