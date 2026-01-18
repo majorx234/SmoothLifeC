@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 #include "smooth_life.h"
 
 double clamp2(double x, double min, double max)
@@ -476,6 +477,7 @@ void antialiased_circle(unsigned int h,
   }
   matrix_roll(x_out, w, h, (h>>1), 0);
   matrix_roll(x_out, w, h, (w>>1), 1);
+  // logistic roll
 }
 
 void init_multipliers(Multipliers *self, MultipliersTemp *tmp, int width,
@@ -522,3 +524,27 @@ void init_multipliers(Multipliers *self, MultipliersTemp *tmp, int width,
   fftw_free(tmp->annulus);
 }
 
+void init_smooth_life(SmootheLife* self, int width, int height) {
+  self->width = width;
+  self->height = height;
+  self->basic_rules = malloc(sizeof(BasicRules));
+  basic_rules_new(self->basic_rules,NULL);
+  self->multipliers = malloc(sizeof(Multipliers));
+  MultipliersTemp multipliers_temp = {0};
+
+  // just tempory, need to be deleted at the end
+  multipliers_temp.annulus = malloc(width*height*sizeof(double));
+  multipliers_temp.inner = malloc(width*height*sizeof(double));
+  multipliers_temp.outer = malloc(width*height*sizeof(double));
+  double INNER_RADIUS = 7.0;
+  double OUTER_RADIUS = INNER_RADIUS * 3.0;
+
+  init_multipliers(self->multipliers, &multipliers_temp, width, height, INNER_RADIUS, OUTER_RADIUS);
+  self->field = malloc(width*height*sizeof(double));
+  smoother_life_clear(self);
+}
+
+void smoother_life_clear(SmootheLife* self) {
+  memset(self->field, 0, self->width*self->height*sizeof(double));
+  basic_rules_clear(self->basic_rules);
+}

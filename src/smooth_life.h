@@ -109,13 +109,6 @@ void antialiased_circle(unsigned int h,
                         unsigned int w,
                         double radius,
                         double* x_out);
-typedef struct SmootheLife {
-  size_t with;
-  size_t height;
-  double shape_h;
-  double shape_w;
-  BasicRules* basic_rules;
-} SmootheLife;
 
 typedef struct Multipliers{
   double inner_radius;
@@ -136,3 +129,17 @@ typedef struct MultipliersTemp {
 
 void init_multipliers(Multipliers *self, MultipliersTemp *tmp, int width,
                       int height, double inner_radius, double outer_radius);
+
+typedef struct SmootheLife {
+  size_t width;
+  size_t height;
+  double shape_h;
+  double shape_w;
+  // TODO: need rules class with inferface/polymorphy
+  BasicRules* basic_rules;
+  Multipliers* multipliers;
+  double* field;
+} SmootheLife;
+
+void init_smooth_life(SmootheLife* self, int width, int height);
+void smoother_life_clear(SmootheLife* self);
