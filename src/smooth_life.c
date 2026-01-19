@@ -3,12 +3,19 @@
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
+#include <time.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #include "smooth_life.h"
+
+int rand_in_range(int min, int max) {
+  unsigned int seed = time(0);
+  int rd_num = rand_r(&seed) % (max - min + 1) + min;
+  return rd_num;
+}
 
 double clamp2(double x, double min, double max)
 {
@@ -541,7 +548,7 @@ void init_multipliers(Multipliers *self, MultipliersTemp *tmp, int width,
   fftw_free(tmp->annulus);
 }
 
-void init_smooth_life(SmootheLife* self, SmootheLifeTemp* tmp, int width, int height) {
+void init_smooth_life(SmoothLife* self, SmoothLifeTemp* tmp, int width, int height) {
   self->width = width;
   self->height = height;
   self->basic_rules = malloc(sizeof(BasicRules));
@@ -569,7 +576,7 @@ void init_smooth_life(SmootheLife* self, SmootheLifeTemp* tmp, int width, int he
   tmp->N_buffer = (double *)fftw_malloc(sizeof(double) * width * height);
   // create fft plans:
   tmp->field_plan = fftw_plan_dft_r2c_2d(width, height, self->field, tmp->field_, FFTW_ESTIMATE);
-  smoother_life_clear(self);
+  smooth_life_clear(self);
   tmp->m_buffer_plan = fftw_plan_dft_c2r_2d(width, height, tmp->field_, tmp->M_buffer, FFTW_ESTIMATE);
   tmp->n_buffer_plan = fftw_plan_dft_c2r_2d(width, height, tmp->field_, tmp->N_buffer, FFTW_ESTIMATE);
 
@@ -584,15 +591,15 @@ void init_smooth_life(SmootheLife* self, SmootheLifeTemp* tmp, int width, int he
   tmp->aliveness_tmp->transistion = malloc(width*height*sizeof(double));
   tmp->aliveness_tmp->nextfield = malloc(width*height*sizeof(double));
   tmp->aliveness_tmp->delta = malloc(width*height*sizeof(double));
-  smoother_life_clear(self);
+  smooth_life_clear(self);
 }
 
-void smoother_life_clear(SmootheLife* self) {
+void smooth_life_clear(SmoothLife* self) {
   memset(self->field, 0, self->width*self->height*sizeof(double));
   basic_rules_clear(self->basic_rules);
 }
 
-void smoother_life_step(SmootheLife* self, SmootheLifeTemp* tmp){
+void smooth_life_step(SmoothLife* self, SmoothLifeTemp* tmp){
     fftw_execute(tmp->field_plan);
     matrix_point_mul_complex(tmp->field_, self->multipliers->_M_freq, tmp->M_buffer_, (self->width/2 + 1),  self->height);
     matrix_point_mul_complex(tmp->field_, self->multipliers->_N_freq, tmp->N_buffer_, (self->width/2 + 1), self->height);
@@ -607,4 +614,17 @@ void smoother_life_step(SmootheLife* self, SmootheLifeTemp* tmp){
                   self->field, field_length,
                   self->field,
                   tmp->aliveness_tmp);
+}
+
+void smooth_life_add_speckles(SmoothLife* self, int count, int intensity) {
+  for (int i = 0; i < count; i++) {
+    int radius = (int)self->multipliers->outer_radius;
+    int r = rand_in_range(0, self->height - radius);
+    int c = rand_in_range(0, self->width - radius);
+    for (size_t i = r; i < r + radius; i++) {
+      for(size_t j = c; j < c + radius; j++) {
+        self->field[i*self->width + j] = intensity;
+      }
+    }
+  }
 }

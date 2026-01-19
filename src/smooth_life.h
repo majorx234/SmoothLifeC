@@ -133,7 +133,7 @@ typedef struct MultipliersTemp {
 void init_multipliers(Multipliers *self, MultipliersTemp *tmp, int width,
                       int height, double inner_radius, double outer_radius);
 
-typedef struct SmootheLife {
+typedef struct SmoothLife {
   size_t width;
   size_t height;
   double shape_h;
@@ -142,9 +142,9 @@ typedef struct SmootheLife {
   BasicRules* basic_rules;
   Multipliers* multipliers;
   double* field;
-} SmootheLife;
+} SmoothLife;
 
-typedef struct SmootheLifeTemp {
+typedef struct SmoothLifeTemp {
   fftw_complex* field_;
   fftw_complex* M_buffer_;
   fftw_complex* N_buffer_;
@@ -154,8 +154,9 @@ typedef struct SmootheLifeTemp {
   double* M_buffer;
   double* N_buffer;
   AlivenessTemp* aliveness_tmp;
-} SmootheLifeTemp;
+} SmoothLifeTemp;
 
-void init_smooth_life(SmootheLife* self, SmootheLifeTemp* tmp, int width, int height);
-void smoother_life_clear(SmootheLife* self);
-void smoother_life_step(SmootheLife* self, SmootheLifeTemp* tmp);
+void init_smooth_life(SmoothLife* self, SmoothLifeTemp* tmp, int width, int height);
+void smooth_life_clear(SmoothLife* self);
+void smooth_life_step(SmoothLife* self, SmoothLifeTemp* tmp);
+void smooth_life_add_speckles(SmoothLife* self, int count, int intensity);
